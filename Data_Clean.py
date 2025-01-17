@@ -1,6 +1,5 @@
 #imports
 import pandas as pd
-import matplotlib.pyplot as plt
 
 #function to merge rows for players who played for multiple teams in one season
 def single_row(df):
@@ -22,7 +21,19 @@ def player_award_merge(type,awards):
   path = "csv/"+type+"/"+awards+".csv"
   award = pd.read_csv(path)
 
-  award = award[["Player", "Year", "Pts Won", "Pts Max", "Share"]]
+  perm = ["Player", "Year"]
+  pts = ["Pts Won", "Pts Max", "Share"]
+  ws = ["WS", "WS/48"]
+  defense = ["DWS","DBPM","DRtg"]
+
+  toKeep = perm + pts + ws
+
+  if awards == "DPOY" or awards == "ALL-DEF":
+      toKeep = toKeep + defense
+
+  
+
+  award = award[toKeep]
 
   #reads the players csv file and cleans it up
   players = pd.read_csv("csv\data\Players.csv")
@@ -32,16 +43,16 @@ def player_award_merge(type,awards):
   players["Player"] = players["Player"].str.replace("*", "", regex=False)
 
   #groups players by name and year and also applies the single_row function
-  players = players.groupby(["Player", "Year"]).apply(single_row)
+  players = players.groupby(perm).apply(single_row)
 
   #drops 2 unneeded index levels 
   players.index = players.index.droplevel()
   players.index = players.index.droplevel()
 
   #combines the players and mvp dataframes and fills listed NA columns with 0
-  combined = players.merge(award, how="outer", on=["Player", "Year"])
+  combined = players.merge(award, how="outer", on=perm)
   
-  combined[["Pts Won", "Pts Max", "Share"]] = combined[["Pts Won", "Pts Max", "Share"]].fillna(0)
+  combined[pts] = combined[pts].fillna(0)
 
   standings = pd.read_csv("csv/data/Standings.csv")
 

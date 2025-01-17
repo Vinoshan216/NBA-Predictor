@@ -23,7 +23,7 @@ parser("awards", 'tr', ["over_header"], ["mvp", "roy","dpoy", "smoy", "mip"], ["
 
 
 #Clean
-"""
+
 player_award_merge("team_awards","ALL-NBA")
 player_award_merge("team_awards","ALL-ROOK")
 player_award_merge("team_awards","ALL-DEF")
@@ -32,7 +32,7 @@ player_award_merge("individual_awards","DPOY")
 player_award_merge("individual_awards","6MOY")
 player_award_merge("individual_awards","MIP")
 player_award_merge("individual_awards","ROY")
-"""
+
 
 
 
