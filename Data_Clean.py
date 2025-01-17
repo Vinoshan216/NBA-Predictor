@@ -17,12 +17,12 @@ def single_row(df):
         return row
 
 
-def player_award_merge(type,awards, toKeep):
+def player_award_merge(type,awards):
   
-  path = "csv/{}/{}.csv".format(type,awards)
+  path = "csv/"+type+"/"+awards+".csv"
   award = pd.read_csv(path)
 
-  award = award[toKeep]
+  award = award[["Player", "Year", "Pts Won", "Pts Max", "Share"]]
 
   #reads the players csv file and cleans it up
   players = pd.read_csv("csv\data\Players.csv")
@@ -63,10 +63,8 @@ def player_award_merge(type,awards, toKeep):
 
   stats["GB"] = stats["GB"].str.replace("—", "0")
   stats = stats.apply(pd.to_numeric, errors = "ignore")
-    
-  return stats
+  
+  stats.to_csv("csv/merged_stats/player_"+awards+"_stats.csv")
 
+  
 
-a = player_award_merge("team_awards","ALL-DEF", ["Player", "Year", "Pts Won", "Pts Max", "Share"])
-
-print(a)
