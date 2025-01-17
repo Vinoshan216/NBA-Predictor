@@ -12,7 +12,7 @@ years = list(range(1991,2025))
 """
 Function to parse data from a web page when given
 """
-def parser(location, tag, cleanup_class, table_id, file_name):
+def parser(location, tag, cleanup_class, table_id, file_name, type):
 
     #for each id in table_id
     for x in range(len(table_id)):
@@ -71,7 +71,7 @@ def parser(location, tag, cleanup_class, table_id, file_name):
 
 
         #writes dataframes to csv file
-        topics.to_csv("csv/"+file_name[x]+".csv")
+        topics.to_csv("csv/"+type+"/"+file_name[x]+".csv")
 
 """
 Function to scrape data from webpage and convert it into a locally stored HTML files

@@ -17,60 +17,56 @@ def single_row(df):
         return row
 
 
-#reads the mvp csv file and only looks at the listed columns
-mvps = pd.read_csv("csv\MVPs.csv")
+def player_award_merge(type,awards, toKeep):
+  
+  path = "csv/{}/{}.csv".format(type,awards)
+  award = pd.read_csv(path)
 
-mvps = mvps[["Player", "Year", "Pts Won", "Pts Max", "Share"]]
+  award = award[toKeep]
+
+  #reads the players csv file and cleans it up
+  players = pd.read_csv("csv\data\Players.csv")
+  del players["Unnamed: 0"]
+  del players["Rk"]
+  del players["Awards"]
+  players["Player"] = players["Player"].str.replace("*", "", regex=False)
+
+  #groups players by name and year and also applies the single_row function
+  players = players.groupby(["Player", "Year"]).apply(single_row)
+
+  #drops 2 unneeded index levels 
+  players.index = players.index.droplevel()
+  players.index = players.index.droplevel()
+
+  #combines the players and mvp dataframes and fills listed NA columns with 0
+  combined = players.merge(award, how="outer", on=["Player", "Year"])
+  
+  combined[["Pts Won", "Pts Max", "Share"]] = combined[["Pts Won", "Pts Max", "Share"]].fillna(0)
+
+  standings = pd.read_csv("csv/data/Standings.csv")
+
+  standings["Team"] = standings["Team"].str.replace("*", "", regex=False)
+
+  nickname = {}
+
+  with open("nicknames.txt", encoding="utf-8") as f:
+      lines = f.readlines()
+      for line in lines[1:]:
+          abbrev, name = line.replace("\n", "").split(",")
+          nickname[abbrev] = name
+
+  combined["Team"] = combined["Team"].map(nickname)
+
+  stats = combined.merge(standings, how="outer", on=["Team", "Year"])
+
+  del stats["Unnamed: 0"]
+
+  stats["GB"] = stats["GB"].str.replace("—", "0")
+  stats = stats.apply(pd.to_numeric, errors = "ignore")
+    
+  return stats
 
 
-#reads the players csv file and cleans it up
-players = pd.read_csv("csv\Players.csv")
-del players["Unnamed: 0"]
-del players["Rk"]
-del players["Awards"]
-players["Player"] = players["Player"].str.replace("*", "", regex=False)
+a = player_award_merge("team_awards","ALL-DEF", ["Player", "Year", "Pts Won", "Pts Max", "Share"])
 
-
-
-
-#groups players by name and year and also applies the single_row function
-players = players.groupby(["Player", "Year"]).apply(single_row)
-
-#drops 2 unneeded index levels 
-players.index = players.index.droplevel()
-players.index = players.index.droplevel()
-
-#combines the players and mvp dataframes and fills listed NA columns with 0
-combined = players.merge(mvps, how="outer", on=["Player", "Year"])
-combined[["Pts Won", "Pts Max", "Share"]] = combined[["Pts Won", "Pts Max", "Share"]].fillna(0)
-
-
-standings = pd.read_csv("csv/Standings.csv")
-
-standings["Team"] = standings["Team"].str.replace("*", "", regex=False)
-
-nickname = {}
-
-with open("nicknames.txt", encoding="utf-8") as f:
-    lines = f.readlines()
-    for line in lines[1:]:
-        abbrev, name = line.replace("\n", "").split(",")
-        nickname[abbrev] = name
-
-combined["Team"] = combined["Team"].map(nickname)
-
-stats = combined.merge(standings, how="outer", on=["Team", "Year"])
-
-del stats["Unnamed: 0"]
-
-stats["GB"] = stats["GB"].str.replace("—", "0")
-stats = stats.apply(pd.to_numeric, errors = "ignore")
-
-
-stats.to_csv("player_mvp_stats.csv")
-
-highest_scoring = stats[stats["G"] > 70].sort_values("PTS", ascending=False).head(10)
-
-highest_scoring.plot.bar("Player","PTS")
-
-plt.show()
+print(a)
