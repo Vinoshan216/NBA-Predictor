@@ -17,8 +17,6 @@ def parser(location, tag, cleanup_class, table_id, file_name, type):
     #for each id in table_id
     for x in range(len(table_id)):
         #to hold dataframes
-        temp_dataframes= []
-        temp_dataframes2 = []
         dataframes = []
 
         #for each year in list of years, find corresponding html page and opens it for reading
