@@ -1,10 +1,7 @@
 from Parse_Scrape import scraper, parser
 from Data_Clean import player_award_merge
-from Machine_Learning import input_data, backtest, find_avg_precision, write_stats
+from Machine_Learning import write_stats
 import os, pandas as pd
-from sklearn.linear_model import Ridge
-
-
 
 
 
@@ -95,7 +92,6 @@ def predict():
   for award in awards:
     create_folder(version+"/"+award)
     write_stats(version, award, f2)
-
 
 
 #View
